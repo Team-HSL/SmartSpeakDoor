@@ -65,6 +65,9 @@ headers = {'Ocp-Apim-Subscription-Key': subscription_key}
 #"""
 #----2. Localから取得する場合 ----#
 # 画像へのパスをimage_fileに代入
+
+#パスは個人で変更してください（下の二箇所）
+
 image_file ="/Users/murakitatsuya/Documents/IoT/SmartSpeakDoor/picture/muraki.jpg"
 image_data = open(image_file, "rb").read()
 from PIL import Image
