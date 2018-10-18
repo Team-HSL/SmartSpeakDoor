@@ -68,10 +68,10 @@ headers = {'Ocp-Apim-Subscription-Key': subscription_key}
 
 #パスは個人で変更してください（下の二箇所）
 
-image_file ="/Users/murakitatsuya/Documents/IoT/SmartSpeakDoor/picture/muraki.jpg"
+image_file ="./picture/muraki.jpg"
 image_data = open(image_file, "rb").read()
 from PIL import Image
-image_data2 = Image.open("/Users/murakitatsuya/Documents/IoT/SmartSpeakDoor/picture/muraki.jpg")
+image_data2 = Image.open("./picture/muraki.jpg")
 image_data2.show()
 
 headers    = {'Ocp-Apim-Subscription-Key': subscription_key,
