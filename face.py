@@ -10,33 +10,34 @@ subscription_key = file.read()
 def getFaceID(image_url,subscription_key = subscription_key, plflag = 0, image_file = []):
     # 画像のfaceIDを取得する
     import requests
-    
+
     import matplotlib.pyplot as plt
     from PIL import Image
     from matplotlib import patches
     from io import BytesIO
-    
+
     #Jupyter Notebookを使っている場合は以下のマジックコマンドを使用
-   # get_ipython().magic('matplotlib inline')
-    
+    # get_ipython().magic('matplotlib inline')
+
     face_api_url_detect = 'https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect'
-    
+
     #---------------------------------------------------- 画像の取得 ---------------------------------------------------------
     #"""
     #----1. webから取得する場合 ----#
     #画像のあるURLを指定
-    data_url = {'url': image_url}
-    headers = {'Ocp-Apim-Subscription-Key': subscription_key}
+    if image_file == []:
+        data_url = {'url': image_url}
+        headers = {'Ocp-Apim-Subscription-Key': subscription_key}
     #"""
-    
+
     #---- Localから取得する場合 ----#  
     # 画像へのパスをimage_fileに代入
     if image_file:
-        data_url = open(image_file, "rb").read()
+        image_data = open(image_file, "rb").read()
 
         headers    = {'Ocp-Apim-Subscription-Key': subscription_key,
                       'Content-Type': 'application/octet-stream'}
-  
+
     #------------------------------------------------------- 画像から取得したい情報の指定 -----------------------------------
     # 'returnFaceId': 入力した顔画像に付与されるIDを返すかどうか
     # 'returnFaceLandmarks' : 目や口などの特徴となる部分の座標を返すかどうか
@@ -51,29 +52,38 @@ def getFaceID(image_url,subscription_key = subscription_key, plflag = 0, image_f
         'returnFaceAttributes': 'age,gender,headPose,smile,facialHair,glasses,' +
         'emotion,hair,makeup,occlusion,accessories,blur,exposure,noise'
     }
-    
+
     #------------------------------------------------------- httpにリクエストを送る(データを取ってくる) -----------------------------------
     #"""
     #----1. web画像の場合 ----#
-    response_url = requests.post(face_api_url_detect, params=params, headers=headers, json=data_url)
+    if image_file == []:
+        response_url = requests.post(face_api_url_detect, params=params, headers=headers, json=data_url)
     #"""
-    
+    #-----2 ローカル画像の場合  -----#
+    if image_file:
+        response_url = requests.post(face_api_url_detect, headers=headers, params=params, data=image_data)
+
+
     faces = response_url.json()
-    
+
     faceIds = []
     for face in faces:
         faceIds.append(face["faceId"])
-    
+
     #------------------------------------------------------- 結果の表示 -----------------------------------
     #今回は入力画像の顔を検知し，性別と年齢の情報を表示させる
     if plflag == 1:
         #"""
         #----1. web画像の場合 ----#
-        image_url = Image.open(BytesIO(requests.get(image_url).content))
+        if image_file == []:
+            image = Image.open(BytesIO(requests.get(image_url).content))
         #"""
+        #-----2 ローカル画像の場合　----#
+        if image_file:
+            image = Image.open(BytesIO(image_data))
 
         plt.figure(figsize=(8, 8))
-        ax = plt.imshow(image_url, alpha=0.6)
+        ax = plt.imshow(image, alpha=0.6)
         for face in faces:
             fr = face["faceRectangle"]
             fa = face["faceAttributes"]
@@ -84,8 +94,9 @@ def getFaceID(image_url,subscription_key = subscription_key, plflag = 0, image_f
             ax.axes.add_patch(p)
             plt.text(origin[0], origin[1], "%s, %d"%(fa["gender"].capitalize(), fa["age"]),
                      fontsize=20, weight="bold", va="bottom")
-#            plt.text(origin[0], origin[1], "%s"%ID, fontsize=10, weight="bold", va="bottom")
+    #            plt.text(origin[0], origin[1], "%s"%ID, fontsize=10, weight="bold", va="bottom")
         _ = plt.axis("off")
+
         
     return faceIds
 
@@ -227,7 +238,7 @@ def test(faceListname):
     sanma2ID = getFaceID(image_sanma2,plflag=1)
     sanma3ID = getFaceID(image_sanma3,plflag=1)
     
-    image_urlIDs = getFaceID(image_url,plflag=1)
+    image_urlIDs = getFaceID(image_url,plflag=1,image_file='./picture/muraki.jpg')
     
         # Facelist 新規作成
 #    json_facelistcreation = createFacelist(faceListname)
