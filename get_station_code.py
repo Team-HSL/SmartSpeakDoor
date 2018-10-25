@@ -26,4 +26,4 @@ def get_station_code(Station):  # 'Station' must be string.
 
 
 if __name__ == '__main__':
-    get_station_code('出町柳')
+    get_station_code('淀屋橋')
