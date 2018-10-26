@@ -102,7 +102,7 @@ except:
 # --------------------- テスト画像で学習ができているかを確認  --------------------------------
 # 将来的にはconfidenceの情報を利用してみるのもいいかも
 
-test_image = 'test_picture/tatsu_test.JPG'
+test_image = 'test_picture/test3.JPG'
 # 通常のFace APIをたたく
 response = CF.face.detect(test_image, face_id=True, landmarks=True, attributes='age,gender')
 face_ids = [d['faceId'] for d in response]
@@ -272,7 +272,7 @@ for id in person_kind:
     import sys
     sys.path.append('./api_code')
     name, train, weather, schedule = api(id)
-    talklist = [name, train, weather, schedule]
+    talklist = [name, train,schedule]
 
     sys.path.append('./api_code')
     talk(talklist)
