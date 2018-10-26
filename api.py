@@ -37,7 +37,6 @@ def api(id):
 
     return name, train, weather, schedule
 
-
 if __name__ == '__main__':
     import sys
     sys.path.append('./api_code')
