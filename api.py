@@ -39,6 +39,8 @@ def api(id):
 
 
 if __name__ == '__main__':
+    import sys
+    sys.path.append('./api_code')
     api(1)
-    api(2)
+    # api(2)
 
