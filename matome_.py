@@ -43,6 +43,8 @@ The Face API uses the concept of person groups and persons:
 ・A person has zero or more face images associated to it
 """
 
+
+#imageにバイト列を入れると，
 def detect_(image, face_id=True, landmarks=False, attributes=''):
     """Detect human faces in an image and returns face locations, and
     optionally with `face_id`s, landmarks, and attributes.
@@ -167,152 +169,110 @@ def talk(talklist):
 
 
 
-PERSON_GROUP_ID = 'hsluser'
-# 既存のPeron Groupがあるかどうかで挙動を変える．
-# おそらくAzureでは24時間Person Groupの情報が保存されるようなので，24時間たったかどうかで分岐させるのが良いかも
-# この状態では新たな人を登録したいとき，1度だけ実行されるプログラムを書くか，
-# 一度Person groupをCF.person_group.delete(PERSON_GROUP_ID)で削除してからtryの中身をを変更する必要がある．
+#image_byteに画像のバイト列を代入して，その画像中の人物リストを得る
+def get_person_kind(image_byte):
+    PERSON_GROUP_ID = 'hsluser'
+    # 既存のPeron Groupがあるかどうかで挙動を変える．
+    # おそらくAzureでは24時間Person Groupの情報が保存されるようなので，24時間たったかどうかで分岐させるのが良いかも
+    # この状態では新たな人を登録したいとき，1度だけ実行されるプログラムを書くか，
+    # 一度Person groupをCF.person_group.delete(PERSON_GROUP_ID)で削除してからtryの中身をを変更する必要がある．
 
 
 
-try:
-    CF.person_group.create(PERSON_GROUP_ID, 'Hsluser')
+    try:
+        CF.person_group.create(PERSON_GROUP_ID, 'Hsluser')
 
-    #人の画像を登録する．
-    create_person_group(PERSON_GROUP_ID, name='YUki Goto', folder_name='yuki', user_data='beautiful')
-    create_person_group(PERSON_GROUP_ID, name='Tatsuya Muraki', folder_name='tatsuya', user_data='genius')
+        #人の画像を登録する．
+        create_person_group(PERSON_GROUP_ID, name='YUki Goto', folder_name='yuki', user_data='beautiful')
+        create_person_group(PERSON_GROUP_ID, name='Tatsuya Muraki', folder_name='tatsuya', user_data='genius')
 
-    # 画像を学習させる
-    CF.person_group.train(PERSON_GROUP_ID)
-
-
-    # As training is running asynchronously and thus not might happen immediately,
-    # we need to check the status to make sure it has completed:
-    response = CF.person_group.get_status(PERSON_GROUP_ID)
-    status = response['status']
-    print(status)
+        # 画像を学習させる
+        CF.person_group.train(PERSON_GROUP_ID)
 
 
-
-except:
-    pass
-
-
-# --------------------- テスト画像で学習ができているかを確認  --------------------------------
-# 将来的にはconfidenceの情報を利用してみるのもいいかも
-
-test_image = 'test_picture/test1.jpg'
-image_byte = open(test_image,'rb').read()
+        # As training is running asynchronously and thus not might happen immediately,
+        # we need to check the status to make sure it has completed:
+        response = CF.person_group.get_status(PERSON_GROUP_ID)
+        status = response['status']
+        print(status)
 
 
-# 通常のFace APIをたたく
-response = detect_(image_byte, face_id=True, landmarks=True, attributes='age,gender')
-face_ids = [d['faceId'] for d in response]
-print(face_ids)
 
-identified_faces = CF.face.identify(face_ids, PERSON_GROUP_ID)
-#print(identified_faces)
+    except:
+        pass
 
 
-name_id_dict = {}
-for person in CF.person.lists(PERSON_GROUP_ID):
-    name = person['name']
-    Id = person['personId']
-    detail = person['userData']
-    name_id_dict[Id] = {'name': name, 'userData' : detail}
+    # --------------------- テスト画像で学習ができているかを確認  --------------------------------
+    # 将来的にはconfidenceの情報を利用してみるのもいいかも
 
-person_kind = []
-face_dict = {}
-for face in identified_faces:
-    if face['candidates'] == []:
-        personID = ''
-        name=''
-        faceID = face['faceId']
-        face_dict[faceID] = {}
-        print('anyone')
-
-    else:
-        personID = face['candidates'][0]['personId']
-        faceID = face['faceId']
-        name = name_id_dict[personID]['name']
-        detail = name_id_dict[personID]['userData']
-        face_dict[faceID] = {'name': name, 'userData':detail}
-    print(name)
-
-    if name == 'YUki Goto':
-        person_kind.append(1)
-    if name == 'Tatsuya Muraki':
-        person_kind.append(2)
     
-print('person_kind:',person_kind)        
+
+
+    # 通常のFace APIをたたく
+    response = detect_(image_byte, face_id=True, landmarks=True, attributes='age,gender')
+    face_ids = [d['faceId'] for d in response]
+    print(face_ids)
+
+    identified_faces = CF.face.identify(face_ids, PERSON_GROUP_ID)
+    #print(identified_faces)
+
+
+    name_id_dict = {}
+    for person in CF.person.lists(PERSON_GROUP_ID):
+        name = person['name']
+        Id = person['personId']
+        detail = person['userData']
+        name_id_dict[Id] = {'name': name, 'userData' : detail}
+
+    person_kind = []
+    face_dict = {}
+    for face in identified_faces:
+        if face['candidates'] == []:
+            personID = ''
+            name=''
+            faceID = face['faceId']
+            face_dict[faceID] = {}
+            print('anyone')
+
+        else:
+            personID = face['candidates'][0]['personId']
+            faceID = face['faceId']
+            name = name_id_dict[personID]['name']
+            detail = name_id_dict[personID]['userData']
+            face_dict[faceID] = {'name': name, 'userData':detail}
+        print(name)
+
+        if name == 'YUki Goto':
+            person_kind.append(1)
+        if name == 'Tatsuya Muraki':
+            person_kind.append(2)
         
+    print('person_kind:',person_kind)        
+    return person_kind     
 
-# ------------------------  可視化 ----------------
-# image_data = open(test_image, "rb").read()
-
-
-# image = Image.open(BytesIO(image_data))
-
-
-
-# plt.figure(figsize=(8, 8))
-# ax = plt.imshow(image, alpha=0.6)
-# for face in response:
-#     fr = face["faceRectangle"]
-#     fa = face["faceAttributes"]
-#     iD = face['faceId']
-#     if face_dict[iD] == {}:
-#         pass
-#     else:
-#         name = face_dict[iD]['name']
-#         detail = face_dict[iD]['userData']
-#         origin = (fr["left"], fr["top"])
-#         p = patches.Rectangle(
-#             origin, fr["width"], fr["height"], fill=False, linewidth=2, color='b')
-#         ax.axes.add_patch(p)
-#         plt.text(origin[0], origin[1], "%s \n %s"%(name, detail),
-#                  fontsize=15, weight="bold", va="bottom")
-
-# _ = plt.axis("off")
-
-
-
-
-'''
-if __name__ == '__main__':
-    import sys
-    sys.path.append('./api_code')
-    api(1)
-    # api(2)
-'''
-'''
-if __name__ == '__main__':
-
-    import sys
-    sys.path.append('./api_code')
-
-    from api import api
-    name, train, weather, schedule = api(2) # 1 or 2 can be used.
-    talk_list = [name, train, weather, schedule]
-    talk(talk_list)
-'''
-
+    
 
 
 
 #実行したい部分
-if person_kind:
-    for id in person_kind:
-        import sys
-        sys.path.append('./api_code')
-        name, train, weather, schedule = api(id)
-        talklist = [name, train,schedule]
+def main(image_byte):
+    person_kind = get_person_kind(image_byte)
+    if person_kind:
+        for id in person_kind:
+            import sys
+            sys.path.append('./api_code')
+            name, train, weather, schedule = api(id)
+            talklist = [name, train,schedule]
 
+            sys.path.append('./api_code')
+            talk(talklist)
+    else:
+        import sys
+        talklist = ['あなたはだれ']
         sys.path.append('./api_code')
         talk(talklist)
-else:
-    import sys
-    talklist = ['あなたはだれ']
-    sys.path.append('./api_code')
-    talk(talklist)
 
+if __name__ == '__main__':
+    test_image = 'test_picture/test1.jpg'
+    image_byte = open(test_image,'rb').read()
+    main(image_byte)
