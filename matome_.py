@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 
-#まだ登録していない時は'y'　、すでに登録している時はなし　
-
 
 """
 Created on Sat Oct 20 15:54:22 2018
@@ -203,8 +201,9 @@ except:
 # --------------------- テスト画像で学習ができているかを確認  --------------------------------
 # 将来的にはconfidenceの情報を利用してみるのもいいかも
 
-test_image = 'test_picture/test3.JPG'
+test_image = 'test_picture/test1.jpg'
 image_byte = open(test_image,'rb').read()
+
 
 # 通常のFace APIをたたく
 response = detect_(image_byte, face_id=True, landmarks=True, attributes='age,gender')
@@ -302,12 +301,18 @@ if __name__ == '__main__':
 
 
 #実行したい部分
-for id in person_kind:
-    import sys
-    sys.path.append('./api_code')
-    name, train, weather, schedule = api(id)
-    talklist = [name, train,schedule]
+if person_kind:
+    for id in person_kind:
+        import sys
+        sys.path.append('./api_code')
+        name, train, weather, schedule = api(id)
+        talklist = [name, train,schedule]
 
+        sys.path.append('./api_code')
+        talk(talklist)
+else:
+    import sys
+    talklist = ['あなたはだれ']
     sys.path.append('./api_code')
     talk(talklist)
 
