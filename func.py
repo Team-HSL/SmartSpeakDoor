@@ -14,9 +14,6 @@ cognitive_faceというモジュールをダウンロードする必要あり．
 
 
 import requests
-import matplotlib.pyplot as plt
-from PIL import Image
-from matplotlib import patches
 from io import BytesIO
 import glob
 import cognitive_face as CF
@@ -100,14 +97,14 @@ def api(id):
     from calender_api import calender_api
     from weather_api import weather_api
 
-    if id == 1:
+    if id == 2:
         name = '後藤さん'
         via = '25717:25635' # from出町柳to河原町
         lat = '35.01' # 河原町緯度
         lon = '135.76' # 河原町経度
         calenderID = '8e5etm3bvc22pgjj60795lel2s@group.calendar.google.com' # Goto ID
 
-    elif id == 2:
+    elif id == 1:
         name = '村木くん'
         via = '25717:26238' # from出町柳to淀屋橋
         lat = '34.69' # 淀屋橋緯度
@@ -144,8 +141,8 @@ def talk(talklist):
     sys.path.append('./api_code')
     def jtalk(t, num):
         open_jtalk = ['open_jtalk']
-        mech = ['-x', '/usr/local/Cellar/open-jtalk/1.10_1/dic']
-        htsvoice = ['-m', '/usr/local/Cellar/open-jtalk/1.10_1/voice/mei/mei_normal.htsvoice']
+        mech = ['-x', 'C:/open_jtalk/bin']
+        htsvoice = ['-m', 'C:/open_jtalk/bin/mei/mei_happy.htsvoice']
         speed = ['-r', '0.8']
         outwav = ['-ow', 'ja_sound/ja_{}.wav'.format(num)]
         cmd = open_jtalk + mech + htsvoice + speed + outwav
@@ -153,8 +150,8 @@ def talk(talklist):
         c.stdin.write(t)
         c.stdin.close()
         c.wait()
+
         # 音声を再生する場合
-    
         aplay = ['afplay', 'ja_sound/ja_{}.wav'.format(num)]
         wr = subprocess.Popen(aplay)
 
@@ -201,44 +198,48 @@ def get_person_kind(image_byte):
     # 通常のFace APIをたたく
     response = detect_(image_byte, face_id=True, landmarks=True, attributes='age,gender')
     face_ids = [d['faceId'] for d in response]
-    print(face_ids)
-
-    identified_faces = CF.face.identify(face_ids, PERSON_GROUP_ID)
-    print(identified_faces)
-
-
-    name_id_dict = {}
-    for person in CF.person.lists(PERSON_GROUP_ID):
-        name = person['name']
-        Id = person['personId']
-        detail = person['userData']
-        name_id_dict[Id] = {'name': name, 'userData' : detail}
-
+    print(len(face_ids))
     person_kind = []
-    face_dict = {}
-    for face in identified_faces:
-        if face['candidates'] == []:
-            personID = ''
-            name=''
-            faceID = face['faceId']
-            face_dict[faceID] = {}
-            print('anyone')
+    if face_ids :
+        identified_faces = CF.face.identify(face_ids, PERSON_GROUP_ID)
+        #print(identified_faces)
 
-        else:
-            personID = face['candidates'][0]['personId']
-            faceID = face['faceId']
-            name = name_id_dict[personID]['name']
-            detail = name_id_dict[personID]['userData']
-            face_dict[faceID] = {'name': name, 'userData':detail}
-        print(name)
+        name_id_dict = {}
+        for person in CF.person.lists(PERSON_GROUP_ID):
+            name = person['name']
+            Id = person['personId']
+            detail = person['userData']
+            name_id_dict[Id] = {'name': name, 'userData' : detail}
 
-        if name == 'YUki Goto':
-            person_kind.append(1)
-        if name == 'Tatsuya Muraki':
-            person_kind.append(2)
-        
-    print('person_kind:',person_kind)        
-    return person_kind     
+
+        face_dict = {}
+        for face in identified_faces:
+            if face['candidates'] == []:
+                personID = ''
+                name=''
+                faceID = face['faceId']
+                face_dict[faceID] = {}
+                print('誰でもない')
+                return person_kind.append(3)
+
+            else:
+                personID = face['candidates'][0]['personId']
+                faceID = face['faceId']
+                name = name_id_dict[personID]['name']
+                detail = name_id_dict[personID]['userData']
+                face_dict[faceID] = {'name': name, 'userData':detail}
+            print(name)
+
+            if name == 'YUki Goto':
+                person_kind.append(1)
+            if name == 'Tatsuya Muraki':
+                person_kind.append(2)
+            
+                person_kind
+        print('person_kind:',person_kind)        
+        return person_kind  
+    else:
+        return None
 
 #実行したい部分
 def main(image_byte):
