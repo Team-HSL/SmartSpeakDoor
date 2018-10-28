@@ -90,10 +90,10 @@ def main():
     # Initialize webcam feed
     video = cv2.VideoCapture(0)
     fgbg  = cv2.createBackgroundSubtractorMOG2()
-    ret = video.set(3,720)
+    ret = video.set(3,680)
     ret = video.set(4,400)
 
-    thresh = 150000
+    thresh = 200000
 
     while(True):
 
@@ -111,22 +111,19 @@ def main():
                 feed_dict={image_tensor: frame_expanded})
 
             if num > 0 : 
-                cv2.imwrite("snapshot.jpg",frame)
-                byte_img = open('snapshot.jpg','rb').read()
-                person_kind = func.get_person_kind(byte_img)
+                image_tensor = tf.convert_to_tensor(np.uint8(frame[:, :, ::-1].copy()))
+                encoded = tf.image.encode_jpeg(image_tensor)
+                person_kind = get_person_kind(encoded)
                 if person_kind:
                     for id in person_kind:
-                        if id > 2:
-                            talklist = ['あなたはだれ']
-                            sys.path.append('./api_code')
-                            # talk(talklist)
-                        else:    
-                            sys.path.append('./api_code')
-                            name, train, weather, schedule = func.api(id)
-                else: 
-                    print("no face was detected")
-                        
-            
+                        sys.path.append('./api_code')
+                        name, train, weather, schedule = api(id)
+                else:
+                    talklist = ['あなたはだれ']
+                    sys.path.append('./api_code')
+                    # talk(talklist)
+    
+
                 # # Draw the results of the detection (aka 'visulaize the results')
                 vis_util.visualize_boxes_and_labels_on_image_array(
                     frame,
@@ -149,6 +146,3 @@ def main():
     video.release()
     cv2.destroyAllWindows()
 
-
-if __name__ == '__main__':
-    main()
