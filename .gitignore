@@ -1,1 +1,4 @@
 key.txt
+.DS_store
+json/token.json
+json/credentials.json
