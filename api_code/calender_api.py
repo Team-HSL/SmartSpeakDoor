@@ -31,6 +31,7 @@ def calender_api(calenderID):
     startlist = list()
     if not events:
         print('No upcoming events found.')
+        eventlist.append('ない')
     for event in events:
         start = event['start'].get('dateTime', event['start'].get('date'))
         eventlist.append(event['summary'])

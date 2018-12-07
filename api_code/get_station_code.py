@@ -18,12 +18,14 @@ def get_station_code(Station):  # 'Station' must be string.
 
     # 結果はJSON形式なのでデコードする
     data = json.loads(r.text)
-    number = data['ResultSet']['Point']['Station']['code']
 
-    print(number)
+    try:
+        number = data['ResultSet']['Point'][0]['Station']['code']
+    except KeyError:
+        number = data['ResultSet']['Point']['Station']['code']
 
     return number
 
 
 if __name__ == '__main__':
-    get_station_code('淀屋橋')
+    get_station_code('新宿三丁目')

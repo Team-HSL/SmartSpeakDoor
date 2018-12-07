@@ -1,7 +1,5 @@
-
 import requests
 import json
-
 
 def weather_api(lat, lon):
     # APIキーの指定
@@ -39,8 +37,12 @@ def weather_api(lat, lon):
     #print("| 風向き=", data["wind"]["deg"])
     #print("| 風速度=", data["wind"]["speed"])
     #print('==天候の表示終わり==')
+    weather_dic = {'clear sky':'快晴','few clouds':'晴れ','scattered clouds':'晴れときどきくもり','broken clouds':'くもり', \
+    'shower rain':'こさめ','rain':'雨','thunderstorm':'雷雨','snow':'雪','mist':'霧'}
 
-    return data["weather"][0]["description"]
+    return weather_dic[data["weather"][0]["description"]]
 
 if __name__ == '__main__':
-    weather_api()
+    lat = "35.68"
+    lon = "139.76"
+    print(weather_api(lat, lon))

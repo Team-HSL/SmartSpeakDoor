@@ -3,7 +3,14 @@ import requests
 import json
 import datetime
 
-def train_api(via):
+def train_api(start, finish):
+
+    from get_station_code import get_station_code
+
+    # 駅コードの取得と経路情報の生成
+    code_start = get_station_code(start)
+    code_finish = get_station_code(finish)
+    via = code_start + ':' + code_finish
 
     # APIキーの指定
     apikey = "test_G2zn3qudefX"
@@ -20,10 +27,12 @@ def train_api(via):
 
     # 結果はJSON形式なのでデコードする
     data = json.loads(r.text)
-    if via == '25717:25635': # to河原町 はなぜかjsonのフォーマットが違う
+
+    try:
         Departuretime_str = data["ResultSet"]["Course"]["Route"]["Line"][0]["DepartureState"]["Datetime"]["text"]
-    else:
+    except KeyError:
         Departuretime_str = data["ResultSet"]["Course"]["Route"]["Line"]["DepartureState"]["Datetime"]["text"]
+
 
     # 時刻の文字列を型変換する
     Date_str, time_add = Departuretime_str.split('T')
@@ -43,4 +52,3 @@ def train_api(via):
 
 if __name__ == '__main__':
     train_api()
-
