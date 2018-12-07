@@ -7,7 +7,9 @@ def api(params):
     '''
     params : dict_key [name,start,finish,city]
     '''
-    calenderID = '8e5etm3bvc22pgjj60795lel2s@group.calendar.google.com' # Goto ID
+    with open('./api_code/keys/calenderID.txt') as f:
+        calenderID = f.read() # Goto ID
+
     name  = params['name']
     start = params['departure']
     finish= params['destination']
@@ -53,10 +55,13 @@ def api(params):
     print(name)
     print(train)
     print(weather)
+    print(schedule)
 
     return name, train, weather, schedule
 
 if __name__ == '__main__':
-    params = {'name':'後藤','start':'出町柳','finish':'淀屋橋','city':'osaka'}
+    import os 
+    print(os.listdir('.'))
+    params = {'name':'後藤','departure':'出町柳','destination':'淀屋橋','city':'osaka'}
     api(params)
     # api(2)

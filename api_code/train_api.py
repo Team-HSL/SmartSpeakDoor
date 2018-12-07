@@ -13,7 +13,8 @@ def train_api(start, finish):
     via = code_start + ':' + code_finish
 
     # APIキーの指定
-    apikey = "test_G2zn3qudefX"
+    with open('./api_code/keys/trainAPIkey.txt') as f:
+        apikey = f.read()
 
     # 出発地と目的地の並列化
     # via = '25717:25635' #これは'出町柳:河原町'

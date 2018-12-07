@@ -29,9 +29,8 @@ from api_code.api import api
 import pandas as pd
 
 # Key情報の入力
-key_file = open('key.txt')
-SUBSCRIPTION_KEY = key_file.read()
-key_file.close()
+with open('key.txt') as f:
+    SUBSCRIPTION_KEY = f.read()
 
 BASE_URL = 'https://southeastasia.api.cognitive.microsoft.com/face/v1.0'
 CF.BaseUrl.set(BASE_URL)
@@ -39,6 +38,7 @@ CF.Key.set(SUBSCRIPTION_KEY)
 
 
 PERSON_GROUP_ID = 'hsluser2'
+CSV_FILE = "user_profile.csv"
 
 
 """
@@ -157,7 +157,7 @@ def regist_name(csv_file_name):
             # 登録済みの場合はエラーが生じ，例外処理が行われる．
             try:
                 #人の画像を登録する．
-                create_person_group(PERSON_GROUP_ID, name=name, folder_name= './{}'.format(name))
+                create_person_group(PERSON_GROUP_ID, name=name, folder_name= './Fig_img/{}'.format(name))
             except:
                 pass
 
@@ -207,7 +207,7 @@ def get_person_kind(image_byte, name_id_dict):
     if face_ids:
         identified_faces = CF.face.identify(face_ids, PERSON_GROUP_ID)
         #print(identified_faces)
-
+ 
         # カメラ画像に映った人物を特定する．
         face_dict = {}
         for face in identified_faces:
@@ -227,7 +227,7 @@ def get_person_kind(image_byte, name_id_dict):
                 # face_dict[faceID] = {'name': name, 'userData':detail}
             # print(name)
 
-        df = pd.read_csv("SmartSpeakDoorList.csv")
+        df = pd.read_csv(CSV_FILE)
         df_query = df[df["name"]==name]
         
         return df_query.loc[0,["name", "city", "departure", "destination"]].to_dict()
@@ -238,7 +238,7 @@ def get_person_kind(image_byte, name_id_dict):
 def main():
     test_image = 'test_picture/tatsu_test.jpg'
     image_byte = open(test_image,'rb').read()
-    name_id_dict = regist_name("SmartSpeakDoorList.csv")
+    name_id_dict = regist_name(CSV_FILE)
     person_kind = get_person_kind(image_byte, name_id_dict=name_id_dict)
 
     if len(person_kind)>0:

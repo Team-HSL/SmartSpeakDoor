@@ -12,10 +12,10 @@ def calender_api(calenderID):
     """Shows basic usage of the Google Calendar API.
     Prints the start and name of the next 10 events on the user's calendar.
     """
-    store = file.Storage('./json/token.json')
+    store = file.Storage('./google_json/token.json')
     creds = store.get()
     if not creds or creds.invalid:
-        flow = client.flow_from_clientsecrets('./json/credentials.json', SCOPES)
+        flow = client.flow_from_clientsecrets('./google_json/credentials.json', SCOPES)
         creds = tools.run_flow(flow, store)
     service = build('calendar', 'v3', http=creds.authorize(Http()))
 

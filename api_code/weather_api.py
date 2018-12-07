@@ -3,7 +3,9 @@ import json
 
 def weather_api(lat, lon):
     # APIキーの指定
-    apikey = "fe57e94691b56f62072d40d52145cc30"
+
+    with open('./api_code/keys/weatherAPIkey.txt') as f:
+        apikey = f.read()
 
     # 天気を調べたい都市
     # city = "Tokyo"

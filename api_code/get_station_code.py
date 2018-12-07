@@ -7,7 +7,8 @@ import datetime
 def get_station_code(Station):  # 'Station' must be string.
 
     # APIキーの指定
-    apikey = "test_G2zn3qudefX"
+    with open('./api_code/keys/trainAPIkey.txt') as f:
+        apikey = f.read()
 
     # 駅コードを取得するためのURL
     api = "http://api.ekispert.jp/v1/json/station/light?key={key}&name={station}&type=train"
