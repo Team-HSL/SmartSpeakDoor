@@ -29,8 +29,8 @@ def api(params):
     name = name + "さん"
     tdatetime, hour, minute, second = train_api(start, finish) # tdatetime is date. others are str.
     weather = weather_api(lat, lon)
-    eventlist = []
-    # eventlist, startlist = calender_api(calenderID) # list returned
+    # eventlist = []
+    eventlist, startlist = calender_api(calenderID) # list returned
     currenttime = datetime.datetime.now()
     u = tdatetime - currenttime
     

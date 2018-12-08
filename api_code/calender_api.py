@@ -4,6 +4,7 @@ import datetime
 from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
+# import pprint # デバッグ用
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
@@ -34,8 +35,12 @@ def calender_api(calenderID):
         eventlist.append('ない')
     for event in events:
         start = event['start'].get('dateTime', event['start'].get('date'))
+        # print(start)
         eventlist.append(event['summary'])
-        startlist.append(event['start']['dateTime'])
+        # pprint.pprint(event)
+        # startlist.append(event['start']['dateTime'])
+        startlist.append(start)
+        
 
     return eventlist, startlist
 
